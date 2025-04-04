@@ -25,7 +25,7 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="w-1/4 bg-green-200/80 p-4 rounded-lg shadow-md">
+    <div className="w-full md:w-1/4 bg-green-200/80 p-4 rounded-lg shadow-md mb-4 md:mb-0">
       <h1 className="text-3xl font-extrabold text-[#C8AE7E] mb-4">Agri-Root</h1>
       {weatherData.map((item, index) => (
         <div key={index} className="mb-4 p-4 bg-white rounded-lg shadow-sm">
