@@ -1,18 +1,25 @@
-import { fertilizers } from "../../../models/fertilizerData";
+// import { fertilizers } from "../../../models/fertilizerData";
+import cornImage from "../../../assets/images/corn.png";
 
 function RightSidebar() {
   return (
-    <div className="w-full md:w-1/4 bg-white p-4 rounded-lg shadow-md">
-      <h2 className="text-lg font-bold">Type of Crop: Corn</h2>
-      <h3 className="mt-4 font-semibold">Suggested Fertilizers:</h3>
-      {fertilizers.map((fertilizer, index) => (
-        <div key={index} className="mb-2 p-3 bg-gray-100 rounded-lg shadow-sm">
-          {index + 1}. {fertilizer}
+    <div className="w-full md:w-90 bg-[#0F4D19]/47 p-2 rounded-lg">
+      <div className="text-center mb-4">
+        <h2 className="text-base text-white font-bold">Type of Crop: Corn</h2>
+        <div className="w-32 h-32 mx-auto my-2 rounded-full overflow-hidden bg-white">
+          <img
+            src={cornImage}
+            alt="Corn crop"
+            className="w-full h-full object-cover"
+          />
         </div>
-      ))}
-      <button className="mt-4 bg-black text-white p-2 rounded-lg">
-        View Full Recommendation
-      </button>
+      </div>
+      <div className="px-2">
+        <h3 className="my-2 text-lg text-center text-white font-semibold">
+          AI Suggestion
+        </h3>
+        <div className="h-50 overflow-y-auto bg-white rounded-lg"></div>
+      </div>
     </div>
   );
 }

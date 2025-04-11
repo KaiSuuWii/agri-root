@@ -75,10 +75,8 @@ export const Weather = () => {
   ];
 
   return (
-    <div className="p-2 bg-white rounded-lg">
-      <h2 className="text-sm font-bold text-gray-900 mb-2">
-        Weather Conditions
-      </h2>
+    <div className="p-4 bg-[#0F4D19]/47 rounded-lg">
+      <h2 className="text-lg font-bold text-white mb-2">Weather Conditions</h2>
       <div>
         <WeatherDesc
           weather={weatherData.weather}

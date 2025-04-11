@@ -49,28 +49,28 @@ export class SensorReading {
       };
     } else if (value > max && value <= extremeHighThreshold) {
       return {
-        status: "High",
+        status: "Slightly High",
         message: `Above optimal range (${idealRange})`,
         value: formattedValue,
         ideal: idealRange,
       };
     } else if (value < min && value >= extremeLowThreshold) {
       return {
-        status: "Low",
+        status: "Slightly Low",
         message: `Below optimal range (${idealRange})`,
         value: formattedValue,
         ideal: idealRange,
       };
     } else if (value > extremeHighThreshold) {
       return {
-        status: "Extremely High",
+        status: "High",
         message: `Significantly above optimal range (${idealRange})`,
         value: formattedValue,
         ideal: idealRange,
       };
     } else {
       return {
-        status: "Extremely Low",
+        status: "Low",
         message: `Significantly below optimal range (${idealRange})`,
         value: formattedValue,
         ideal: idealRange,

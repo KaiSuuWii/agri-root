@@ -5,8 +5,8 @@ export const WeatherCard = ({ icon: Icon, title, value, unit }) => (
     <div className="flex items-center">
       <Icon className="w-5 h-5 text-blue-500 mr-2" />
       <div>
-        <h3 className="text-xs text-gray-600">{title}</h3>
-        <p className="text-sm font-bold text-gray-900">
+        <h3 className="text-xs text-black">{title}</h3>
+        <p className="text-sm font-bold text-black">
           {value}
           <span className="text-xs ml-1 font-medium">{unit}</span>
         </p>
