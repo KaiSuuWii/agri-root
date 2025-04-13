@@ -37,6 +37,7 @@ const SensorResults = () => {
       min: SensorReading.THRESHOLDS[type]?.min || 0,
       max: SensorReading.THRESHOLDS[type]?.max || 100,
       currentValue: sensorData?.[type] || 0,
+      unit: SensorReading.THRESHOLDS[type]?.unit || "",
     };
   });
 
@@ -57,6 +58,7 @@ const SensorResults = () => {
               label={sensor.label}
               status={sensor.status}
               idealRange={sensor.ideal}
+              unit={sensor.unit}
             />
           ))}
         </div>
@@ -66,8 +68,6 @@ const SensorResults = () => {
           </p>
         )}
       </div>
-
-      {/* Timestamp */}
     </div>
   );
 };

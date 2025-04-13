@@ -1,11 +1,11 @@
 export class SensorReading {
   // Ideal thresholds for corn in Cagayan de Oro
   static THRESHOLDS = {
-    nitrogen: { min: 3.5, max: 4.5, unit: "%" }, // 4 parts
-    phosphorous: { min: 1.5, max: 2.5, unit: "%" }, // 2 parts
-    potassium: { min: 0.5, max: 1.5, unit: "%" }, // 1 part
-    soil_ph: { min: 6.0, max: 6.5, unit: "pH" },
-    soil_moisture: { min: 50, max: 75, unit: "%" },
+    nitrogen: { min: 140, max: 200, unit: "mg/kg" }, // Medium to high for corn
+    phosphorous: { min: 10, max: 20, unit: "mg/kg" }, // Medium for corn
+    potassium: { min: 150, max: 250, unit: "mg/kg" }, // Medium to high for corn
+    soil_ph: { min: 5.8, max: 7.0, unit: "pH" }, // Slightly acidic to neutral
+    soil_moisture: { min: 40, max: 60, unit: "%" }, // Moderate moisture
   };
 
   constructor(data) {

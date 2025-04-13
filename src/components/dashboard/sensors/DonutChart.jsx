@@ -41,7 +41,7 @@ const DonutChart = ({ value, max, label, status, idealRange }) => {
 
           {/* Percentage in Center */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center rotate-90">
-            <span className="text-lg font-bold">{value}%</span>
+            <span className="text-lg font-bold">{value}</span>
           </div>
         </div>
 
