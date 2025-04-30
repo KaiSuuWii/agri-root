@@ -8,11 +8,35 @@ import {
   orderBy,
   limit,
   onSnapshot,
+  addDoc,
 } from "firebase/firestore";
 
 const ML_COLLECTION_NAME = "machine-learning-model";
 
 export const mlService = {
+  /**
+   * Add a new fertilizer recommendation
+   * @param {Object} recommendation - The recommendation data to store
+   * @returns {Promise<Object>} Stored recommendation with ID
+   */
+  addRecommendation: async (recommendation) => {
+    try {
+      const modelCollection = collection(db, ML_COLLECTION_NAME);
+      const docRef = await addDoc(modelCollection, {
+        ...recommendation,
+        timestamp: new Date(),
+      });
+
+      return {
+        id: docRef.id,
+        ...recommendation,
+      };
+    } catch (error) {
+      console.error("Error adding ML recommendation: ", error);
+      throw error;
+    }
+  },
+
   /**
    * Get latest fertilizer recommendation
    * @returns {Promise<Object>} Latest fertilizer recommendation

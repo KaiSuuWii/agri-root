@@ -1,11 +1,81 @@
-import { useSensorData } from "../../../hooks/useSensorData";
+import { usePreprocessedData } from "../../../hooks/usePreprocessedData";
 import { SensorReading } from "../../../models/SensorReading";
+import { dataIntegrationService } from "../../../services/api/dataIntegrationService";
+import { apiService } from "../../../services/api/apiService";
+import { preprocessedDataService } from "../../../services/api/preprocessedDataService";
 import DonutChart from "./DonutChart";
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 
-const SensorResults = () => {
-  const { sensorData, loading } = useSensorData();
+const SensorResults = ({ mode = "scan", areaData = null }) => {
+  const { preprocessedData, loading } = usePreprocessedData();
+  const [sensorData, setSensorData] = useState(null);
 
-  if (loading) {
+  // Initialize data processing and prediction when in scan mode
+  useEffect(() => {
+    if (mode === "scan") {
+      const initializeProcessing = async () => {
+        try {
+          console.log("Starting data processing initialization...");
+          const cleanup =
+            await dataIntegrationService.initializeDataProcessing();
+          console.log("Data processing initialized successfully");
+          return cleanup;
+        } catch (error) {
+          console.error("Failed to initialize data processing:", error);
+        }
+      };
+
+      const cleanupFn = initializeProcessing();
+
+      return () => {
+        if (cleanupFn) {
+          cleanupFn.then((cleanup) => {
+            if (cleanup) cleanup();
+          });
+        }
+      };
+    }
+  }, [mode]);
+
+  // Separate effect for real-time data subscription
+  useEffect(() => {
+    if (mode === "scan") {
+      // Subscribe to real-time preprocessed data updates
+      const unsubscribePreprocessedData =
+        preprocessedDataService.subscribeToPreprocessedData((newData) => {
+          console.log("Received new preprocessed data:", newData);
+          setSensorData(newData);
+        });
+
+      // Initialize automatic predictions
+      console.log("Setting up automatic predictions...");
+      const unsubscribePredict = apiService.subscribeAndPredict();
+
+      return () => {
+        unsubscribePredict();
+        unsubscribePreprocessedData();
+      };
+    }
+  }, [mode]);
+
+  // Update sensor data based on mode and areaData
+  useEffect(() => {
+    if (mode === "view" && areaData) {
+      setSensorData(areaData.sensorData);
+    } else if (mode === "scan") {
+      // In scan mode, always use the latest preprocessed data
+      if (preprocessedData) {
+        console.log(
+          "Updating with latest preprocessed data:",
+          preprocessedData
+        );
+        setSensorData(preprocessedData);
+      }
+    }
+  }, [mode, areaData, preprocessedData]);
+
+  if (loading && mode === "scan") {
     return (
       <div className="bg-white p-3 rounded-lg shadow-sm">
         <p className="text-sm">Loading sensor data...</p>
@@ -13,31 +83,42 @@ const SensorResults = () => {
     );
   }
 
+  // Log the current state before creating sensor data
+  console.log("Current sensor data state:", {
+    nitrogen: sensorData?.nitrogen,
+    phosphorus: sensorData?.phosphorus,
+    potassium: sensorData?.potassium,
+    ph: sensorData?.ph,
+    moisture: sensorData?.moisture,
+  });
+
   const sensorTypes = [
-    "nitrogen",
-    "phosphorous",
-    "potassium",
-    "soil_ph",
-    "soil_moisture",
+    { key: "nitrogen", label: "Nitrogen" },
+    { key: "phosphorus", label: "Phosphorus" },
+    { key: "potassium", label: "Potassium" },
+    { key: "ph", label: "pH", sensorKey: "soil_ph" },
   ];
 
-  const sensorResults = sensorTypes.map((type) => {
-    const result = sensorData?.getStatus(type) || {
-      status: "Unknown",
-      message: "No data available",
-      value: "0",
-      ideal: "N/A",
-    };
+  // Create a SensorReading instance with the current sensor data
+  const currentSensorData = {
+    nitrogen: sensorData?.nitrogen || 0,
+    phosphorus: sensorData?.phosphorus || 0,
+    potassium: sensorData?.potassium || 0,
+    soil_ph: sensorData?.ph || 0,
+    soil_moisture: sensorData?.moisture || 0,
+  };
+  const sensorReading = new SensorReading(currentSensorData);
+
+  const sensorResults = sensorTypes.map(({ key, label, sensorKey }) => {
+    const mappedKey = sensorKey || key;
+    const result = sensorReading.getStatus(mappedKey);
     return {
-      label: type
-        .split("_")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" "),
+      label,
       ...result,
-      min: SensorReading.THRESHOLDS[type]?.min || 0,
-      max: SensorReading.THRESHOLDS[type]?.max || 100,
-      currentValue: sensorData?.[type] || 0,
-      unit: SensorReading.THRESHOLDS[type]?.unit || "",
+      min: SensorReading.THRESHOLDS[mappedKey]?.min || 0,
+      max: SensorReading.THRESHOLDS[mappedKey]?.max || 100,
+      currentValue: sensorData?.[key] || 0,
+      unit: SensorReading.THRESHOLDS[mappedKey]?.unit || "",
     };
   });
 
@@ -48,12 +129,12 @@ const SensorResults = () => {
       </h2>
 
       {/* Sensor Results Grid */}
-      <div className="bg-[#0F4D19]/47 p-4 rounded-lg">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="bg-[#0F4D19]/47 p-4 rounded-lg overflow-hidden">
+        <div className="grid grid-cols-2 gap-4">
           {sensorResults.map((sensor, index) => (
             <DonutChart
               key={index}
-              value={parseInt(sensor.value)}
+              value={sensor.currentValue}
               max={sensor.max}
               label={sensor.label}
               status={sensor.status}
@@ -63,13 +144,18 @@ const SensorResults = () => {
           ))}
         </div>
         {sensorData?.timestamp && (
-          <p className="text-[10px] text-white mt-2">
-            Last updated: {sensorData.getFormattedTimestamp()}
-          </p>
+          <div className="text-[10px] text-white mt-2 space-y-1">
+            <p>Last updated: {sensorData.time}</p>
+          </div>
         )}
       </div>
     </div>
   );
+};
+
+SensorResults.propTypes = {
+  mode: PropTypes.oneOf(["scan", "view"]),
+  areaData: PropTypes.object,
 };
 
 export default SensorResults;

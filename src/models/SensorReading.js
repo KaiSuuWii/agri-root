@@ -1,16 +1,16 @@
 export class SensorReading {
   // Ideal thresholds for corn in Cagayan de Oro
   static THRESHOLDS = {
-    nitrogen: { min: 140, max: 200, unit: "mg/kg" }, // Medium to high for corn
-    phosphorous: { min: 10, max: 20, unit: "mg/kg" }, // Medium for corn
-    potassium: { min: 150, max: 250, unit: "mg/kg" }, // Medium to high for corn
-    soil_ph: { min: 5.8, max: 7.0, unit: "pH" }, // Slightly acidic to neutral
+    nitrogen: { min: 80, max: 140, unit: "mg/kg" }, // Medium to high for corn
+    phosphorus: { min: 15, max: 30, unit: "mg/kg" }, // Medium for corn
+    potassium: { min: 80, max: 150, unit: "mg/kg" }, // Medium to high for corn
+    soil_ph: { min: 6.0, max: 7.0, unit: "pH" }, // Optimal range for corn
     soil_moisture: { min: 40, max: 60, unit: "%" }, // Moderate moisture
   };
 
   constructor(data) {
     this.nitrogen = data?.nitrogen || 0;
-    this.phosphorous = data?.phosphorous || 0;
+    this.phosphorus = data?.phosphorus || 0;
     this.potassium = data?.potassium || 0;
     this.soil_ph = data?.soil_ph || 0;
     this.soil_moisture = data?.soil_moisture || 0;
@@ -34,6 +34,47 @@ export class SensorReading {
     const formattedValue = this.formatValue(type);
     const idealRange = `${min}${unit}-${max}${unit}`;
 
+    // Special handling for pH
+    if (type === "soil_ph") {
+      if (value < 5.5) {
+        return {
+          status: "Very Acidic",
+          message: "pH is too low for optimal corn growth",
+          value: formattedValue,
+          ideal: "6.0-7.0",
+        };
+      } else if (value >= 5.5 && value < 6.0) {
+        return {
+          status: "Acidic",
+          message: "pH is slightly below optimal range",
+          value: formattedValue,
+          ideal: "6.0-7.0",
+        };
+      } else if (value >= 6.0 && value <= 7.0) {
+        return {
+          status: "Optimal",
+          message: "pH is in optimal range for corn growth",
+          value: formattedValue,
+          ideal: "6.0-7.0",
+        };
+      } else if (value > 7.0 && value <= 7.5) {
+        return {
+          status: "Slightly Alkaline",
+          message: "pH is slightly above optimal range",
+          value: formattedValue,
+          ideal: "6.0-7.0",
+        };
+      } else {
+        return {
+          status: "Alkaline",
+          message: "pH is too high for optimal corn growth",
+          value: formattedValue,
+          ideal: "6.0-7.0",
+        };
+      }
+    }
+
+    // For other sensors, use the standard threshold logic
     // Define threshold margins for high/low (20% of range)
     const range = max - min;
     const margin = range * 0.2;
@@ -79,11 +120,11 @@ export class SensorReading {
   }
 
   getNPKRatio() {
-    const total = this.nitrogen + this.phosphorous + this.potassium;
+    const total = this.nitrogen + this.phosphorus + this.potassium;
     if (total === 0) return { actual: "0:0:0", ideal: "4:2:1" };
 
     const n = ((this.nitrogen / total) * 7).toFixed(1);
-    const p = ((this.phosphorous / total) * 7).toFixed(1);
+    const p = ((this.phosphorus / total) * 7).toFixed(1);
     const k = ((this.potassium / total) * 7).toFixed(1);
 
     return {
