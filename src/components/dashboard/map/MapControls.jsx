@@ -19,7 +19,7 @@ const MapControls = ({
           {!isDrawing && !hasUnsavedPolygon ? (
             <button
               onClick={onStartDrawing}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors"
+              className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
             >
               Draw Area
             </button>
@@ -29,13 +29,13 @@ const MapControls = ({
                 <>
                   <button
                     onClick={onFinishDrawing}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 transition-colors"
+                    className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
                   >
                     Finish Drawing
                   </button>
                   <button
                     onClick={onCancelDrawing}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition-colors"
+                    className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
                   >
                     Cancel
                   </button>
@@ -45,13 +45,13 @@ const MapControls = ({
                   <>
                     <button
                       onClick={onSaveArea}
-                      className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-500 transition-colors"
+                      className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
                     >
                       Save Area
                     </button>
                     <button
                       onClick={onCancelDrawing}
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition-colors"
+                      className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
                     >
                       Cancel
                     </button>
@@ -62,7 +62,7 @@ const MapControls = ({
           )}
           <button
             onClick={onViewAreas}
-            className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 transition-colors"
+            className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
           >
             View Areas
           </button>
@@ -71,7 +71,7 @@ const MapControls = ({
         // View mode button
         <button
           onClick={onScanArea}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors"
+          className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
         >
           Scan Area
         </button>
