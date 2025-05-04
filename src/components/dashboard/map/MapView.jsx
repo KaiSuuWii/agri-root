@@ -277,7 +277,7 @@ const MapView = ({ onLotSizeChange, onAreaSelect }) => {
 
               console.log("Area ID:", area.id, "Selected ID:", selectedAreaId);
               const isSelected = area.id === selectedAreaId;
-              const polygonColor = isSelected ? "#0F4D19" : "#808080";
+              const polygonColor = isSelected ? "#B91C1C" : "#808080";
               console.log("Is Selected:", isSelected, "Color:", polygonColor);
 
               return (
