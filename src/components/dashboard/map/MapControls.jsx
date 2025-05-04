@@ -62,7 +62,7 @@ const MapControls = ({
           )}
           <button
             onClick={onViewAreas}
-            className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
+            className="bg-[#B91C1C] text-white px-4 py-2 rounded-lg hover:bg-[#991B1B] transition-colors"
           >
             View Areas
           </button>
