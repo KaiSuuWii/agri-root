@@ -9,24 +9,19 @@ const ApplicationDetails = ({ applicationData, lotSize }) => {
   if (!applicationData) return null;
 
   return (
-    <div className="border-t pt-4">
-      <h4 className="font-semibold text-gray-800">
-        Current Application Details:
-      </h4>
-      <div className="space-y-2 mt-2">
-        <div>
-          <p className="text-sm font-medium text-gray-700">
-            Amount for this application:
-          </p>
-          <p className="text-gray-600">
-            {calculateFertilizerAmount(applicationData.quantity)} kg (
-            {applicationData.percentage})
-          </p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-700">When to apply:</p>
-          <p className="text-gray-600">{applicationData.timing}</p>
-        </div>
+    <div className="space-y-2">
+      <div>
+        <p className="text-base font-medium">Amount for this application:</p>
+        <p className="text-gray-600">
+          {calculateFertilizerAmount(applicationData.quantity)} kg
+          {applicationData.percentage ? ` (${applicationData.percentage})` : ""}
+        </p>
+      </div>
+      <div>
+        <p className="text-base font-medium">When to apply:</p>
+        <p className="text-gray-600">
+          {applicationData.timing || applicationData.notes}
+        </p>
       </div>
     </div>
   );
@@ -35,8 +30,9 @@ const ApplicationDetails = ({ applicationData, lotSize }) => {
 ApplicationDetails.propTypes = {
   applicationData: PropTypes.shape({
     quantity: PropTypes.number.isRequired,
-    percentage: PropTypes.string.isRequired,
-    timing: PropTypes.string.isRequired,
+    percentage: PropTypes.string,
+    timing: PropTypes.string,
+    notes: PropTypes.string,
   }),
   lotSize: PropTypes.number.isRequired,
 };

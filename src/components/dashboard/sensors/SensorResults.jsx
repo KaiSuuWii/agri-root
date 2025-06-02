@@ -5,15 +5,17 @@ import { apiService } from "../../../services/api/apiService";
 import { preprocessedDataService } from "../../../services/api/preprocessedDataService";
 import DonutChart from "./DonutChart";
 import { useEffect, useState } from "react";
-import PropTypes from "prop-types";
+import { useDashboard } from "../../../context/DashboardContext";
 
-const SensorResults = ({ mode = "scan", areaData = null }) => {
+const SensorResults = () => {
+  const { mode, hasDrawnPlot, hasSelectedArea, selectedAreaData } =
+    useDashboard();
   const { preprocessedData, loading } = usePreprocessedData();
   const [sensorData, setSensorData] = useState(null);
 
   // Initialize data processing and prediction when in scan mode
   useEffect(() => {
-    if (mode === "scan") {
+    if (mode === "scan" && hasDrawnPlot) {
       const initializeProcessing = async () => {
         try {
           console.log("Starting data processing initialization...");
@@ -36,11 +38,11 @@ const SensorResults = ({ mode = "scan", areaData = null }) => {
         }
       };
     }
-  }, [mode]);
+  }, [mode, hasDrawnPlot]);
 
   // Separate effect for real-time data subscription
   useEffect(() => {
-    if (mode === "scan") {
+    if (mode === "scan" && hasDrawnPlot) {
       // Subscribe to real-time preprocessed data updates
       const unsubscribePreprocessedData =
         preprocessedDataService.subscribeToPreprocessedData((newData) => {
@@ -57,13 +59,13 @@ const SensorResults = ({ mode = "scan", areaData = null }) => {
         unsubscribePreprocessedData();
       };
     }
-  }, [mode]);
+  }, [mode, hasDrawnPlot]);
 
   // Update sensor data based on mode and areaData
   useEffect(() => {
-    if (mode === "view" && areaData) {
-      setSensorData(areaData.sensorData);
-    } else if (mode === "scan") {
+    if (mode === "view" && hasSelectedArea && selectedAreaData) {
+      setSensorData(selectedAreaData.sensorData);
+    } else if (mode === "scan" && hasDrawnPlot) {
       // In scan mode, always use the latest preprocessed data
       if (preprocessedData) {
         console.log(
@@ -73,9 +75,9 @@ const SensorResults = ({ mode = "scan", areaData = null }) => {
         setSensorData(preprocessedData);
       }
     }
-  }, [mode, areaData, preprocessedData]);
+  }, [mode, selectedAreaData, preprocessedData, hasDrawnPlot, hasSelectedArea]);
 
-  if (loading && mode === "scan") {
+  if (loading && mode === "scan" && hasDrawnPlot) {
     return (
       <div className="bg-white p-3 rounded-lg shadow-sm">
         <p className="text-sm">Loading sensor data...</p>
@@ -83,14 +85,29 @@ const SensorResults = ({ mode = "scan", areaData = null }) => {
     );
   }
 
-  // Log the current state before creating sensor data
-  console.log("Current sensor data state:", {
-    nitrogen: sensorData?.nitrogen,
-    phosphorus: sensorData?.phosphorus,
-    potassium: sensorData?.potassium,
-    ph: sensorData?.ph,
-    moisture: sensorData?.moisture,
-  });
+  // Create default sensor data when no area is selected or drawn
+  const defaultSensorData = {
+    nitrogen: "--",
+    phosphorus: "--",
+    potassium: "--",
+    ph: "--",
+    moisture: "--",
+  };
+
+  const isResetState =
+    (mode === "scan" && !hasDrawnPlot) || (mode === "view" && !hasSelectedArea);
+
+  const currentSensorData = isResetState
+    ? defaultSensorData
+    : {
+        nitrogen: sensorData?.nitrogen || 0,
+        phosphorus: sensorData?.phosphorus || 0,
+        potassium: sensorData?.potassium || 0,
+        soil_ph: sensorData?.ph || 0,
+        soil_moisture: sensorData?.moisture || 0,
+      };
+
+  const sensorReading = new SensorReading(currentSensorData);
 
   const sensorTypes = [
     { key: "nitrogen", label: "Nitrogen" },
@@ -99,25 +116,19 @@ const SensorResults = ({ mode = "scan", areaData = null }) => {
     { key: "ph", label: "pH", sensorKey: "soil_ph" },
   ];
 
-  // Create a SensorReading instance with the current sensor data
-  const currentSensorData = {
-    nitrogen: sensorData?.nitrogen || 0,
-    phosphorus: sensorData?.phosphorus || 0,
-    potassium: sensorData?.potassium || 0,
-    soil_ph: sensorData?.ph || 0,
-    soil_moisture: sensorData?.moisture || 0,
-  };
-  const sensorReading = new SensorReading(currentSensorData);
-
   const sensorResults = sensorTypes.map(({ key, label, sensorKey }) => {
     const mappedKey = sensorKey || key;
     const result = sensorReading.getStatus(mappedKey);
+    const value = currentSensorData[sensorKey || key];
+    // If in reset state, override color to gray
+    const status = isResetState ? "reset" : result.status;
     return {
       label,
       ...result,
+      status,
       min: SensorReading.THRESHOLDS[mappedKey]?.min || 0,
       max: SensorReading.THRESHOLDS[mappedKey]?.max || 100,
-      currentValue: sensorData?.[key] || 0,
+      currentValue: value === "--" ? "--" : value || 0,
       unit: SensorReading.THRESHOLDS[mappedKey]?.unit || "",
     };
   });
@@ -143,19 +154,9 @@ const SensorResults = ({ mode = "scan", areaData = null }) => {
             />
           ))}
         </div>
-        {sensorData?.timestamp && (
-          <div className="text-[10px] text-white mt-2 space-y-1">
-            <p>Last updated: {sensorData.time}</p>
-          </div>
-        )}
       </div>
     </div>
   );
-};
-
-SensorResults.propTypes = {
-  mode: PropTypes.oneOf(["scan", "view"]),
-  areaData: PropTypes.object,
 };
 
 export default SensorResults;

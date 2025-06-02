@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { useDashboard } from "../../../context/DashboardContext";
 
 const MapControls = ({
   isDrawing,
@@ -8,9 +9,42 @@ const MapControls = ({
   onViewAreas,
   onScanArea,
   onCancelDrawing,
-  mode,
   hasUnsavedPolygon,
 }) => {
+  const { mode, setMode, setHasDrawnPlot, setHasSelectedArea } = useDashboard();
+
+  const handleStartDrawing = () => {
+    setHasDrawnPlot(false);
+    onStartDrawing();
+  };
+
+  const handleFinishDrawing = () => {
+    setHasDrawnPlot(true);
+    onFinishDrawing();
+  };
+
+  const handleSaveArea = () => {
+    setHasDrawnPlot(false);
+    onSaveArea();
+  };
+
+  const handleViewAreas = () => {
+    setMode("view");
+    setHasSelectedArea(false);
+    onViewAreas();
+  };
+
+  const handleScanArea = () => {
+    setMode("scan");
+    setHasDrawnPlot(false);
+    onScanArea();
+  };
+
+  const handleCancelDrawing = () => {
+    setHasDrawnPlot(false);
+    onCancelDrawing();
+  };
+
   return (
     <div className="flex gap-2">
       {mode === "scan" ? (
@@ -18,7 +52,7 @@ const MapControls = ({
         <>
           {!isDrawing && !hasUnsavedPolygon ? (
             <button
-              onClick={onStartDrawing}
+              onClick={handleStartDrawing}
               className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
             >
               Draw Area
@@ -28,13 +62,13 @@ const MapControls = ({
               {isDrawing ? (
                 <>
                   <button
-                    onClick={onFinishDrawing}
+                    onClick={handleFinishDrawing}
                     className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
                   >
                     Finish Drawing
                   </button>
                   <button
-                    onClick={onCancelDrawing}
+                    onClick={handleCancelDrawing}
                     className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
                   >
                     Cancel
@@ -44,13 +78,13 @@ const MapControls = ({
                 hasUnsavedPolygon && (
                   <>
                     <button
-                      onClick={onSaveArea}
+                      onClick={handleSaveArea}
                       className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
                     >
                       Save Area
                     </button>
                     <button
-                      onClick={onCancelDrawing}
+                      onClick={handleCancelDrawing}
                       className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
                     >
                       Cancel
@@ -61,7 +95,7 @@ const MapControls = ({
             </>
           )}
           <button
-            onClick={onViewAreas}
+            onClick={handleViewAreas}
             className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
           >
             View Areas
@@ -70,7 +104,7 @@ const MapControls = ({
       ) : (
         // View mode button
         <button
-          onClick={onScanArea}
+          onClick={handleScanArea}
           className="bg-[#0F4D19] text-white px-4 py-2 rounded-lg hover:bg-[#1A7A2E] transition-colors"
         >
           Scan Area
@@ -88,7 +122,6 @@ MapControls.propTypes = {
   onViewAreas: PropTypes.func.isRequired,
   onScanArea: PropTypes.func.isRequired,
   onCancelDrawing: PropTypes.func.isRequired,
-  mode: PropTypes.oneOf(["scan", "view"]).isRequired,
   hasUnsavedPolygon: PropTypes.bool.isRequired,
 };
 
